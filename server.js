@@ -25,9 +25,17 @@ process.stdin.on('keypress', function (ch, key) {
         process.stdin.pause();
         process.exit(0);
     }
-    
+
     if (key.name == 'n') {
         lastConnection.send('new_message');
+    }
+
+    if (key.name == 'r') {
+        lastConnection.send('reply_to');
+    }
+
+    if (key.name == 'a') {
+        lastConnection.send('reply_to_all');
     }
 });
 

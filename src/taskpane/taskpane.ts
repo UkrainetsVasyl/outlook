@@ -1,7 +1,9 @@
 let webSocket = null;
 
 enum Messages {
-  newMessage = 'new_message'
+  newMessage = 'new_message',
+  reply = 'reply_to',
+  replyAll = 'reply_to_all'
 }
 
 Office.onReady((info) => {
@@ -24,6 +26,8 @@ export async function run() {
   webSocket.onmessage = function (message) {
     switch (message.data) {
       case Messages.newMessage: openNewMessage(); break;
+      case Messages.reply: replyMessage(); break;
+      case Messages.replyAll: replyMessagesAll(); break;
       default: logMessage(message.data);
     }
   };
@@ -35,4 +39,12 @@ function logMessage(message) {
 
 function openNewMessage() {
   Office.context.mailbox.displayNewMessageForm({});
+}
+
+function replyMessage() {
+  Office.context.mailbox.item.displayReplyForm('hello there');
+}
+
+function replyMessagesAll() {
+  Office.context.mailbox.item.displayReplyAllForm('hello there');
 }
