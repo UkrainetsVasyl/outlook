@@ -37,6 +37,14 @@ process.stdin.on('keypress', function (ch, key) {
     if (key.name == 'a') {
         lastConnection.send('reply_to_all');
     }
+
+    if (key.name == 'f') {
+        lastConnection.send('forward_to');
+    }
+
+    if (key.name == 't') {
+        lastConnection.send('tag_message');
+    }
 });
 
 process.stdin.setRawMode(true);

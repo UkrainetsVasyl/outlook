@@ -3,7 +3,9 @@ let webSocket = null;
 enum Messages {
   newMessage = 'new_message',
   reply = 'reply_to',
-  replyAll = 'reply_to_all'
+  replyAll = 'reply_to_all',
+  forward = 'forward_to',
+  tag = 'tag_message'
 }
 
 Office.onReady((info) => {
@@ -28,6 +30,8 @@ export async function run() {
       case Messages.newMessage: openNewMessage(); break;
       case Messages.reply: replyMessage(); break;
       case Messages.replyAll: replyMessagesAll(); break;
+      case Messages.forward: forwardMessage(); break;
+      case Messages.tag: tagMessage(); break;
       default: logMessage(message.data);
     }
   };
@@ -47,4 +51,24 @@ function replyMessage() {
 
 function replyMessagesAll() {
   Office.context.mailbox.item.displayReplyAllForm('hello there');
+}
+
+async function forwardMessage() {
+  const body = await new Promise((resolve) => {
+    Office.context.mailbox.item.body.getAsync("html", { asyncContext: event }, (data) => {
+    resolve(data.value);
+  })});
+  console.log(body)
+  Office.context.mailbox.displayNewMessageForm({
+    htmlBody: body
+  });
+}
+
+async function tagMessage() {
+  const categories = await new Promise((resolve) => {
+    Office.context.mailbox.masterCategories.getAsync(null, (data) => {
+      resolve(data.value)
+    });
+  });
+  Office.context.mailbox.item.categories.addAsync([categories[0].displayName]);
 }
