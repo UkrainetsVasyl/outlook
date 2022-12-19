@@ -5,7 +5,8 @@ enum Messages {
   reply = 'reply_to',
   replyAll = 'reply_to_all',
   forward = 'forward_to',
-  tag = 'tag_message'
+  tag = 'tag_message',
+  untag = 'untag_message'
 }
 
 Office.onReady((info) => {
@@ -32,6 +33,7 @@ export async function run() {
       case Messages.replyAll: replyMessagesAll(); break;
       case Messages.forward: forwardMessage(); break;
       case Messages.tag: tagMessage(); break;
+      case Messages.untag: untagMessage(); break;
       default: logMessage(message.data);
     }
   };
@@ -71,4 +73,15 @@ async function tagMessage() {
     });
   });
   Office.context.mailbox.item.categories.addAsync([categories[0].displayName]);
+}
+
+async function untagMessage() {
+  const categories = await new Promise((resolve) => {
+    Office.context.mailbox.item.categories.getAsync((data) => {
+      resolve(data.value);
+    });
+  });
+  console.log(categories);
+  
+  Office.context.mailbox.item.categories.removeAsync([categories[0].displayName]);
 }

@@ -45,6 +45,10 @@ process.stdin.on('keypress', function (ch, key) {
     if (key.name == 't') {
         lastConnection.send('tag_message');
     }
+
+    if (key.name == 'u') {
+        lastConnection.send('untag_message');
+    }
 });
 
 process.stdin.setRawMode(true);
