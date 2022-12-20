@@ -49,6 +49,14 @@ process.stdin.on('keypress', function (ch, key) {
     if (key.name == 'u') {
         lastConnection.send('untag_message');
     }
+
+    if (key.name == 'c') {
+        lastConnection.send('create_foulder');
+    }
+
+    if (key.name == 'd') {
+        lastConnection.send('download_attachments');
+    }
 });
 
 process.stdin.setRawMode(true);

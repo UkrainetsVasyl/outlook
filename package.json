@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "core-js": "^3.9.1",
+    "easyews": "^1.0.21",
     "keypress": "^0.2.1",
     "regenerator-runtime": "^0.13.7",
     "ws": "^8.11.0"

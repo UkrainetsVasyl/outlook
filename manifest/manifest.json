@@ -29,7 +29,7 @@
         "permissions": {
             "resourceSpecific": [
                 {
-                    "name": "MailboxItem.Read.User",
+                    "name": "MailboxItem.ReadWrite.User",
                     "type": "Delegated"
                 },
                 {
@@ -75,7 +75,7 @@
                         {
                             "id": "TaskPaneRuntimeShow",
                             "type": "openPage",
-                            "pinnable": false,
+                            "pinnable": true,
                             "view": "dashboard"
                         }
                     ]
