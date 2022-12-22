@@ -1,5 +1,20 @@
 // import foulderxml from './foulder.xml';
+import axios from 'axios';
+import graphHelper from '../../graphHelper';
+import settings from '../../appSettings';
+
+function initializeGraph(settings) {
+  graphHelper.initializeGraphForUserAuth(settings, (info) => {
+    // Display the device code message to
+    // the user. This tells them
+    // where to go to sign in and provides the
+    // code to use.
+    console.log(info.message);
+  });
+}
+
 let webSocket = null;
+
 
 function getSubjectRequest(id) {
   // Return a GetItem operation request for the subject of the specified item. 
@@ -29,25 +44,21 @@ function getSubjectRequest(id) {
 }
 
 function getRootFoulder() {
-  const result =
-    '<?xml version="1.0" encoding="utf-8"?>' +
-    '<soap:Envelope ' +
-    '               xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"' +
-    '               xmlns:t="http://schemas.microsoft.com/exchange/services/2006/types">' +
-    '  <soap:Header>' +
-    '    <RequestServerVersion Version="Exchange2013" xmlns="http://schemas.microsoft.com/exchange/services/2006/types" soap:mustUnderstand="0" />' +
-    '  </soap:Header>' +
-    '  <soap:Body>' +
-    '    <FindFoulder Traversal="Shallow" xmlns="http://schemas.microsoft.com/exchange/services/2006/messages">' +
-    '      <FoulderShape>' +
-    '  <t:BaseShape>Default</t:BaseShape>' +
-    '      </FoulderShape>' +
-    '      <ParentFoulderIds>' +
-    '      <t:DistinguishedFoulderId Id="inbox"/>' +
-    '      </ParentFoulderIds>' +
-    '    </FindFoulder>' +
-    '  </soap:Body>' +
-    '</soap:Envelope>';
+  const result = `<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"
+   xmlns:t="https://schemas.microsoft.com/exchange/services/2006/types">
+  <soap:Body>
+    <GetFolder xmlns="https://schemas.microsoft.com/exchange/services/2006/messages"
+               xmlns:t="https://schemas.microsoft.com/exchange/services/2006/types">
+      <FolderShape>
+        <t:BaseShape>Default</t:BaseShape>
+      </FolderShape>
+      <FolderIds>
+        <t:DistinguishedFolderId Id="inbox"/>
+      </FolderIds>
+    </GetFolder>
+  </soap:Body>
+</soap:Envelope>`;
 
   return result;
 }
@@ -118,7 +129,7 @@ Office.onReady((info) => {
   if (info.host === Office.HostType.Outlook) {
     document.getElementById('sideload-msg').style.display = 'none';
     document.getElementById('app-body').style.display = 'flex';
-    // document.getElementById'run').onclick = run;
+    document.getElementById('run').onclick = displayData;
   }
 });
 
@@ -128,7 +139,6 @@ export async function run() {
   };
 
   webSocket.onmessage = function (message) {
-    console.log(Office.context.mailbox.item)
     switch (message.data) {
       case Messages.newMessage: openNewMessage(); break;
       case Messages.reply: replyMessage(); break;
@@ -141,6 +151,34 @@ export async function run() {
       default: logMessage(message.data);
     }
   };
+}
+
+async function displayData() {
+  initializeGraph(settings);
+
+  // try {
+  //   const userToken = await graphHelper.getUserTokenAsync();
+  //   console.log(`User token: ${userToken}`);
+  // } catch (err) {
+  //   console.log(`Error getting user access token: ${err}`);
+  // }
+
+  const token = await new Promise(resolve => {
+    Office.context.mailbox.getCallbackTokenAsync({isRest: true}, (data) => {
+      resolve(data.value);
+    });
+  });
+
+  // const userDetails = await axios.get('https://graph.microsoft.com/v1.0/me/', {
+  //   headers: {
+  //     'Authorization': `Bearer ${token}`
+  //   }
+  // });
+
+  // console.log(userDetails)
+  
+  // console.log(Office.context.mailbox.item.getEntitiesByType)
+  // console.log(Office.context.mailbox.item.body)
 }
 
 function logMessage(message) {
@@ -160,14 +198,23 @@ function replyMessagesAll() {
 }
 
 async function forwardMessage() {
+  console.log(Office.context.mailbox.item)
   const body = await new Promise((resolve) => {
     Office.context.mailbox.item.body.getAsync("html", { asyncContext: event }, (data) => {
       resolve(data.value);
     })
   });
   console.log(body)
-  Office.context.mailbox.displayNewMessageForm({
-    htmlBody: body
+  Office.context.mailbox.item.displayReplyForm({
+    htmlBody: '',
+    'attachments' :
+    [
+        {
+            'type' : 'item',
+            'name' : 'rand',
+            'itemId' : Office.context.mailbox.item.itemId
+        }
+    ]
   });
 }
 
